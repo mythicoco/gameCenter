@@ -17,8 +17,8 @@ body {
 }
 .board {
     background-color: white;
-    width: 550px;
-    height: 550px;
+    width: min(550px, 90vw);
+    height: min(550px, 90vw);
     border: 5px solid black;
     cursor: pointer;
     display: grid;
