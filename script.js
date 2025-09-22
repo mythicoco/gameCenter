@@ -35,8 +35,8 @@ const games = [{
     name: 'css tools',
     filename: 'tool'
 }, {
-    name: 'web designs',
-    filename: 'AREA-webDesigns'
+    name: 'digit Ai',
+    filename: 'digitAi-none'
 }
 ]
 
