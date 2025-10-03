@@ -1,9 +1,10 @@
-let index = 10;
+let index = 8;
 document.querySelector('.board').innerHTML  = Array(index**2).fill(null).map((_, i) => `<div class='c${i} cube'></div>`).join(" ")
 document.querySelectorAll('.cube').forEach(cube => {
     cube.addEventListener('click', handleClick)
 })
 let grid = Array(index**2).fill(0)
+const cache = new Map()
 document.querySelector('.board').style.gridTemplateColumns = `repeat(${index}, 1fr)`
 
 const blueColor = 'lightblue'
@@ -35,19 +36,25 @@ async function botTurn() {
     let board = grid
     checkIfGameIsOver(grid)
     document.querySelector('.tr').innerHTML = 'Bot thinking...'
-    await new Promise(x => setTimeout(x, 10))
-    const legalMoves = getLegalMoves(board).sort((a,b) => {return Math.abs((a % index) - Math.floor(index/2)) - Math.abs((b % index) - Math.floor(index/2))})
-    let bestMove;
-    let bestScore = -Infinity
-    for(let i=0;i<legalMoves.length;i++) {
-        const move = legalMoves[i]
-        board[move] = -1
-        const score = minimax(7, false, board, -Infinity, Infinity)
-        board[move] = 0
-        if (score > bestScore) {
-            bestScore = score
-            bestMove = move
+    await new Promise(x => setTimeout(x, 30))
+    let legalMoves = getLegalMoves(board).sort((a,b) => {return Math.abs((a % index) - Math.floor(index/2)) - Math.abs((b % index) - Math.floor(index/2))})
+    let bestMove = legalMoves[0]
+    for (let depth=1;depth<=9;depth++) {
+        let bestScore = -Infinity
+        let currentBest = bestMove
+        const orderedMoves = [bestMove, ...legalMoves.filter(m => m !== bestMove)]
+        for(let i=0;i<orderedMoves.length;i++) {
+            const move = orderedMoves[i]
+            board[move] = -1
+            const score = minimax(depth, false, board, -Infinity, Infinity)
+            board[move] = 0
+            if (score > bestScore) {
+                bestScore = score
+                currentBest = move
+            }
         }
+        bestMove = currentBest
+        //console.log(depth)
     }
     document.querySelector(`.c${bestMove}`).style.backgroundColor = greenColor
     grid[bestMove] = -1
@@ -75,13 +82,24 @@ function checkIfGameIsOver(board) {
     }
     return false
 }
+function hashBoard(board) {
+    let hash = 0
+    for (let i = 0; i < board.length; i++) {
+        hash = (hash * 3 + board[i] + 1) | 0
+    }
+    return hash
+}
 
 function minimax(depth, isMaximizing, board, alpha, beta) {
+    const hash = hashBoard(board)
+    const cached = cache.get(hash)
+    if (cached && cached.depth >= depth) return cached.score
+
     const botWin = detect(-1,-1,-1,-1, board)
     const humanWin = detect(1,1,1,1, board)
     if (botWin) return 500 + depth
     if (humanWin) return -1000 - depth
-    if (depth === 0 || botWin || humanWin) return evaluateBoard(depth, board)
+    if (depth === 0 || botWin || humanWin) return evaluateBoard(depth, board, botWin, humanWin)
 
     const mid = (index-1) / 2
     const legalMoves = getLegalMoves(board).sort((a,b) => {return Math.abs((a % index) - mid) - Math.abs((b % index) - mid)})
@@ -101,16 +119,17 @@ function minimax(depth, isMaximizing, board, alpha, beta) {
             if (beta <= alpha) break;
         }
     }
+    cache.set(hash, {score: bestScore, depth})
     return bestScore
 }
 
-function evaluateBoard(depth, board) {
+function evaluateBoard(depth, board, botWin, humanWin) {
     let score = 0
     let botThreats = 0
     let humanThreats = 0
 
-    if (detect(-1,-1,-1,-1,board)) return 10000 + depth
-    if (detect(1,1,1,1,board)) return -20000 - depth
+    if (botWin) return 10000 + depth
+    if (humanWin) return -20000 - depth
 
     for (let i=0;i<board.length;i++) {
         const v = board[i];
