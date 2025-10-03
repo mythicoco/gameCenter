@@ -10,4 +10,7 @@ document.querySelector('.hardMode').addEventListener('click', () => {
 document.querySelector('.minimaxMode').addEventListener('click', () => {
     window.location.href = 'minimax mode'
 })
+document.querySelector('.impossible').addEventListener('click', () => {
+    window.location.href = 'impossible mode'
+})
 let theme = localStorage.getItem('theme');if (theme === 'black') {document.body.classList.add('dark')}

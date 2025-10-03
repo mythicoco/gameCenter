@@ -55,13 +55,12 @@ body.dark .mode {
 .mode:active {
     transform: translateY(1px);
 }
-
-.minimaxMode {
+.impossible {
     background-color: #1a1a1a;
     color: white;
 }
 
-.minimaxMode:hover {
+.impossible:hover {
     background-color: #2d2d2d;
 }
 
