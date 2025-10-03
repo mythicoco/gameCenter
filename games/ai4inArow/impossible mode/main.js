@@ -1,4 +1,4 @@
-let index = 4;
+let index = 10;
 document.querySelector('.board').innerHTML  = Array(index**2).fill(null).map((_, i) => `<div class='c${i} cube'></div>`).join(" ")
 document.querySelectorAll('.cube').forEach(cube => {
     cube.addEventListener('click', handleClick)
@@ -42,7 +42,7 @@ async function botTurn() {
     for(let i=0;i<legalMoves.length;i++) {
         const move = legalMoves[i]
         board[move] = -1
-        const score = minimax(16, false, board, -Infinity, Infinity)
+        const score = minimax(7, false, board, -Infinity, Infinity)
         board[move] = 0
         if (score > bestScore) {
             bestScore = score
@@ -79,8 +79,8 @@ function checkIfGameIsOver(board) {
 function minimax(depth, isMaximizing, board, alpha, beta) {
     const botWin = detect(-1,-1,-1,-1, board)
     const humanWin = detect(1,1,1,1, board)
-    if (botWin) return 50 + depth
-    if (humanWin) return -100 - depth
+    if (botWin) return 500 + depth
+    if (humanWin) return -1000 - depth
     if (depth === 0 || botWin || humanWin) return evaluateBoard(depth, board)
 
     const mid = (index-1) / 2
@@ -109,8 +109,8 @@ function evaluateBoard(depth, board) {
     let botThreats = 0
     let humanThreats = 0
 
-    if (detect(-1,-1,-1,-1,board)) return 5000 + depth
-    if (detect(1,1,1,1,board)) return -5000 - depth
+    if (detect(-1,-1,-1,-1,board)) return 10000 + depth
+    if (detect(1,1,1,1,board)) return -20000 - depth
 
     for (let i=0;i<board.length;i++) {
         const v = board[i];
